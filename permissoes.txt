@@ -1,0 +1,15 @@
+# Permissões para CodePipeline com Elastic Beanstalk
+
+## Solução que Funcionou
+
+### Anexar Política Gerenciada AWS
+```bash
+aws iam attach-role-policy \
+    --role-name AWSCodePipelineServiceRole-us-east-1-meddiflux-dev-hom \
+    --policy-arn arn:aws:iam::aws:policy/AdministratorAccess-AWSElasticBeanstalk
+```
+
+**Política:** `AdministratorAccess-AWSElasticBeanstalk`
+
+## Status Final
+✅ Pipeline executando com sucesso
