@@ -19,6 +19,7 @@ COPY . .
 
 # Build do front-end com Vite - AMBIENTE DE PRODUÇÃO
 ARG VITE_API_URL
+ENV VITE_API_URL=$VITE_API_URL
 RUN cd client && npm run build
 
 # Limpeza das dependências de desenvolvimento do client para reduzir tamanho
