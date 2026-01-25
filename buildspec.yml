@@ -15,16 +15,16 @@ phases:
       - |
         if [ "$ENVIRONMENT" = "dev" ]; then
           echo "Usando Dockerfile.dev para ambiente de desenvolvimento"
-          docker build -f Dockerfile.dev -t $REPOSITORY_URI:latest .
+          docker build -f Dockerfile.dev --build-arg VITE_API_URL=$VITE_API_URL -t $REPOSITORY_URI:latest .
         elif [ "$ENVIRONMENT" = "homol" ]; then
           echo "Usando Dockerfile.homol para ambiente de homologação"
-          docker build -f Dockerfile.homol -t $REPOSITORY_URI:latest .
+          docker build -f Dockerfile.homol --build-arg VITE_API_URL=$VITE_API_URL -t $REPOSITORY_URI:latest .
         elif [ "$ENVIRONMENT" = "prod" ]; then
           echo "Usando Dockerfile.prod para ambiente de produção"
-          docker build -f Dockerfile.prod -t $REPOSITORY_URI:latest .
+          docker build -f Dockerfile.prod --build-arg VITE_API_URL=$VITE_API_URL -t $REPOSITORY_URI:latest .
         else
           echo "Usando Dockerfile padrão"
-          docker build -t $REPOSITORY_URI:latest .
+          docker build --build-arg VITE_API_URL=$VITE_API_URL -t $REPOSITORY_URI:latest .
         fi
       - docker tag $REPOSITORY_URI:latest $REPOSITORY_URI:$IMAGE_TAG
   post_build:
