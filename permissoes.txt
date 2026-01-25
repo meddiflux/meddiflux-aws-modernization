@@ -1,15 +1,32 @@
-# Permissões para CodePipeline com Elastic Beanstalk
+PERMISSÕES NECESSÁRIAS - PROJETO BIA
 
-## Solução que Funcionou
+=== ROLES EXISTENTES ===
 
-### Anexar Política Gerenciada AWS
-```bash
-aws iam attach-role-policy \
-    --role-name AWSCodePipelineServiceRole-us-east-1-meddiflux-dev-hom \
-    --policy-arn arn:aws:iam::aws:policy/AdministratorAccess-AWSElasticBeanstalk
-```
+Role: codebuild-bia-service-role
+1. AmazonEC2ContainerRegistryPowerUser
+   - Para push/pull de imagens no ECR
 
-**Política:** `AdministratorAccess-AWSElasticBeanstalk`
+2. AmazonECS_FullAccess
+   - Para deploy no ECS cluster
 
-## Status Final
-✅ Pipeline executando com sucesso
+3. CloudWatchLogsFullAccess
+   - Para logs do CodeBuild
+
+=== NOVAS PERMISSÕES - PIPELINE MIGRATIONS ===
+
+Role: codebuild-api-migrations-service-role
+
+1. SecretsManagerReadWrite
+   - Para acessar credenciais do RDS via Secrets Manager
+
+2. AmazonVPCFullAccess  
+   - Para criar interfaces de rede na VPC
+
+CONFIGURAÇÃO VPC CODEBUILD:
+- VPC: vpc-0c38efc67c01971e8 (vpc-dev-vpc)
+- Subnet: subnet-01a3b104d030b32f4 (private)
+- Security Group: sg-09bcf2bcb613744bc (ec2-dev)
+
+PROBLEMA RESOLVIDO:
+- CodeBuild agora consegue acessar RDS na subnet privada
+- Migrations executam com sucesso
