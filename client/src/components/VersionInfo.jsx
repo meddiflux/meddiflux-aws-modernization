@@ -16,8 +16,8 @@ const VersionInfo = () => {
       return window.location.origin;
     }
     
-    // Desenvolvimento local - fallback
-    return 'http://localhost:3001';
+    // Fallback para desenvolvimento local
+    return window.location.origin;
   };
 
   const checkApiHealth = async () => {
