@@ -11,16 +11,33 @@ phases:
   build:
     commands:
       - echo Build iniciado em `date`
-      - echo Gerando imagem da BIA...
-      - docker build -t $REPOSITORY_URI:latest .
+      - echo Gerando imagem da MEDDIFLUX...
+      - |
+        if [ "$ENVIRONMENT" = "dev" ]; then
+          echo "Usando Dockerfile.dev para ambiente de desenvolvimento"
+          docker build -f Dockerfile.dev --build-arg VITE_API_URL=$VITE_API_URL -t $REPOSITORY_URI:latest .
+        elif [ "$ENVIRONMENT" = "homol" ]; then
+          echo "Usando Dockerfile.homol para ambiente de homologação"
+          docker build -f Dockerfile.homol --build-arg VITE_API_URL=$VITE_API_URL -t $REPOSITORY_URI:latest .
+        elif [ "$ENVIRONMENT" = "prod" ]; then
+          echo "Usando Dockerfile.prod para ambiente de produção"
+          docker build -f Dockerfile.prod --build-arg VITE_API_URL=$VITE_API_URL -t $REPOSITORY_URI:latest .
+        else
+          echo "Usando Dockerfile padrão"
+          docker build --build-arg VITE_API_URL=$VITE_API_URL -t $REPOSITORY_URI:latest .
+        fi
       - docker tag $REPOSITORY_URI:latest $REPOSITORY_URI:$IMAGE_TAG
   post_build:
-    commands:
+     commands:
       - echo Build finalizado com sucesso em `date`
       - echo Fazendo push da imagem para o ECR...
       - docker push $REPOSITORY_URI:latest
       - docker push $REPOSITORY_URI:$IMAGE_TAG
-      - echo Gerando artefato da imagem para o ECS
-      - printf '[{"name":"meddiflux","imageUri":"%s"}]' $REPOSITORY_URI:$IMAGE_TAG > imagedefinitions.json
+      - echo Gerando Dockerrun.aws.json para o Elastic Beanstalk...
+      - printf '{"AWSEBDockerrunVersion":"1","Image":{"Name":"%s","Update":"true"},"Ports":[{"ContainerPort":80,"HostPort":80}]}' "$REPOSITORY_URI:$IMAGE_TAG" > Dockerrun.aws.json
+      - cat Dockerrun.aws.json
+
 artifacts:
-  files: imagedefinitions.json
+  files:
+    - Dockerrun.aws.json
+    - .ebextensions/**/*
