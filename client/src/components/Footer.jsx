@@ -8,9 +8,7 @@ const Footer = () => {
         <p>Formação AWS 2026</p>
         <Link to="/about" className="footer-link">
 
-          Sobre a BIA 2
-
-          
+          Sobre a BIA - teste   03/02/2026       
 
         </Link>
       </div>
