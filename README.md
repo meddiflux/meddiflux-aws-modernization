@@ -11,93 +11,144 @@
 ![GitHub Actions](https://img.shields.io/badge/GitHub%20Actions-CI%2FCD-%232671E5.svg?style=for-the-badge&logo=githubactions&logoColor=white)
 
 ---
+# MeddiFlux — Documentação Técnica (AWS Elastic Beanstalk)
 
-## 📌 Visão Geral
+> **Objetivo**: padronizar a entrega do MeddiFlux na AWS com **Infra as Code (Terraform)**, **CI/CD**, **segurança por padrão** e **observabilidade**.
 
-Este repositório documenta a **modernização da arquitetura AWS da MeddiFlux Systems**, aplicando **Cloud/DevOps, Segurança (Security by Design) e FinOps**, com foco em:
+## 1) Visão geral
 
-- 💸 Redução de custos operacionais
-- ⚙️ Escalabilidade, automação e eficiência
-- 🔐 Segurança, governança e mitigação de riscos
-- 🎓 Aprendizado prático com arquitetura baseada em cenário real
+O MeddiFlux é implantado na AWS utilizando **Elastic Beanstalk (EB)** como plataforma de execução (ambiente gerenciado) e **Terraform** para provisionamento e mudanças controladas de infraestrutura.
 
-A iniciativa é voltada para **uso acadêmico e profissional**, com documentação objetiva, evidências técnicas e racional arquitetural claro.
+**Principais resultados esperados**
+- Deploy repetível e rastreável (commit → pipeline → versão publicada)
+- Ambientes consistentes (dev/homolog/prod) definidos por código
+- Segredos e configurações sensíveis fora do repositório
+- Telemetria mínima (logs, métricas, alarmes) e runbooks
+
+## 2) Arquitetura (alto nível)
+
+- **Entrada**: DNS/HTTPS (ex.: Route53 + ALB) 
+- **Execução**: Elastic Beanstalk Environment (EC2 + Auto Scaling)
+- **Dados**: RDS (ex.: PostgreSQL)
+- **Segredos**: AWS Secrets Manager
+- **Observabilidade**: CloudWatch Logs/Metrics/Alarms
+
+📌 Detalhes e diagramas: `docs/architecture.md`.
+
+## 3) Requisitos
+
+### Acesso
+- Conta AWS (ou subconta/OU) com permissões para EB, VPC, EC2, IAM, RDS, CloudWatch, Secrets Manager e S3.
+
+### Ferramentas locais
+- Terraform (versão definida pelo projeto)
+- AWS CLI configurada (`aws configure`)
+- (Opcional) EB CLI, se adotado para operações locais
+
+## 4) Estrutura do repositório (sugerida)
+
+```text
+.
+├─ infra/
+│  ├─ modules/
+│  └─ envs/
+│     ├─ dev/
+│     ├─ homolog/
+│     └─ prod/
+├─ docs/
+│  ├─ architecture.md
+│  ├─ adr/
+│  └─ runbooks/
+└─ .github/workflows/   (ou equivalente do seu CI)
+```
+
+## 5) Ambientes
+
+| Ambiente | Finalidade | Regras | Observações |
+|---|---|---|---|
+| dev | Desenvolvimento | deploy automático (opcional) | recursos mínimos |
+| homolog | Validação | deploy via PR/approval | replica cenário |
+| prod | Produção | approval obrigatório | alarmes e rollback testado |
+
+## 6) Configuração (variáveis e segredos)
+
+**Regras de ouro**
+- ❌ Não versionar segredos no Git
+- ✅ Segredos em **Secrets Manager** (ou Parameter Store) e injetados no runtime
+- ✅ Variáveis não sensíveis via EB Environment Properties
+
+**Padrão recomendado de nomes (exemplos)**
+- `meddflux/<env>/db` (secret JSON com host, user, password, dbname)
+- `meddflux/<env>/app` (secret JSON com tokens/keys)
+
+## 7) Infraestrutura como Código (Terraform)
+
+### Fluxo padrão
+```bash
+cd infra/envs/<env>
+terraform fmt -recursive
+terraform init
+terraform validate
+terraform plan -out plan.tfplan
+terraform apply plan.tfplan
+```
+
+### Estado remoto (recomendação)
+- Backend: **S3**
+- Locking: **S3 native locking** (preferencial) ou **DynamoDB (legado)**, conforme a versão do Terraform e as políticas do projeto.
+
+📌 Detalhes: `infra/README.md`.
+
+## 8) Deploy da aplicação (Elastic Beanstalk)
+
+Existem duas abordagens comuns:
+
+1) **Build/artefato** (ZIP) publicado no EB
+- Pipeline gera artefato versionado (ex.: `app-<git_sha>.zip`)
+- Pipeline atualiza a versão do EB e promove para o ambiente
+
+2) **Container** (Docker) no EB
+- Pipeline publica imagem (ex.: ECR)
+- EB usa `Dockerrun.aws.json` (single ou multicontainer)
+
+📌 Procedimento detalhado: `docs/runbooks/deploy.md`.
+
+## 9) Rollback
+
+Rollback deve ser **rápido e previsível**:
+- Reverter para uma **Application Version** anterior no EB
+- Validar health/status + logs
+
+📌 Procedimento detalhado: `docs/runbooks/rollback.md`.
+
+## 10) Observabilidade
+
+Mínimo recomendado:
+- Logs centralizados por ambiente (CloudWatch Logs)
+- Alarmes: 5xx, latência, CPU/Memory, saúde do EB
+- Dashboard básico por ambiente
+
+📌 Runbook: `docs/runbooks/troubleshooting.md`.
+
+## 11) Segurança
+
+Checklist mínimo:
+- IAM com **least privilege**
+- Segredos centralizados (Secrets Manager)
+- CloudTrail habilitado (auditoria)
+- Proteções no repositório (branch protection + code review)
+
+## 12) Checklist de aceite (cliente/professor)
+
+- [ ] Infra sobe via Terraform (sem cliques manuais)
+- [ ] Deploy publica versão no Elastic Beanstalk via pipeline
+- [ ] Healthcheck e logs comprovam funcionamento
+- [ ] Alarmes mínimos configurados
+- [ ] Rollback documentado e executável
 
 ---
 
-## 🎯 Objetivos do Projeto
+## Contatos / Responsáveis
+- **Owner técnico**: _Felipe_Senra
+- **Owner produto/cliente**: _Professor Henrylle (cliente)_
 
-- Modernizar a arquitetura legada para **containers em ECS Fargate**
-- Implementar **Infraestrutura como Código (Terraform)**
-- Automatizar **CI/CD por ambiente (DEV, HOM, PROD)**
-- Garantir **segurança por padrão** (Least Privilege, Secrets, auditoria)
-- Aplicar **FinOps** para controle e otimização de custos
-- Manter um **roadmap evolutivo, rastreável e explicável**
-
----
-
-## 🧩 Visão Geral da Arquitetura
-
-### Ambientes isolados
-
-- **DEV:** desenvolvimento contínuo e testes
-- **HOM:** validação funcional (uso controlado – 220h/mês)
-- **PROD:** alta disponibilidade, escalabilidade e segurança reforçada
-
-### Componentes principais
-
-- **VPC + Subnets + Security Groups:** isolamento de rede por ambiente
-- **ECS Fargate:** execução de containers sem gestão de servidores
-- **ECR:** versionamento e armazenamento de imagens Docker
-- **ALB:** balanceamento de carga para as aplicações
-- **RDS Multi-AZ:** persistência de dados com alta disponibilidade
-- **S3 (Infra & Conteúdo):**
-  - armazenamento de artefatos (ex.: frontend estático, evidências, exports)
-  - suporte a estados/artefatos de infraestrutura quando aplicável
-- **CloudFront + S3 (conteúdo estático):** cache e distribuição global (quando usado)
-- **CloudWatch + CloudTrail:** observabilidade, auditoria e rastreabilidade
-
----
-
-## 🏗️ Stack Tecnológica
-
-| Categoria              | Tecnologia                                |
-|------------------------|-------------------------------------------|
-| Cloud                  | AWS                                       |
-| Containers             | Docker                                    |
-| Orquestração           | ECS Fargate                               |
-| Registry               | Amazon ECR                                |
-| Storage (Infra/Assets) | Amazon S3                                 |
-| Infra como Código      | Terraform                                 |
-| CI/CD                  | GitHub Actions                            |
-| Observabilidade        | CloudWatch                                |
-| Auditoria              | CloudTrail                                |
-| Segurança              | IAM, Secrets Manager                      |
-| CDN                    | CloudFront (quando aplicável)             |
-| Banco de Dados         | RDS (PostgreSQL / SQL Server)             |
-
----
-
-## 📁 Estrutura do Repositório
-
-```txt
-meddiflux-aws-modernization/
-│
-├── app/
-│   ├── backend/              # Backend + Dockerfile
-│   └── frontend/             # Frontend + Dockerfile (ou build estático)
-│
-├── infra/
-│   └── terraform/
-│       ├── modules/          # Módulos reutilizáveis (network, iam, ecs, ecr, s3, observability, etc.)
-│       └── envs/             # DEV / HOM / PROD (main.tf, variables.tf, outputs.tf, tfvars)
-│
-├── cicd/
-│   └── github-actions/
-│       └── workflows/        # Pipelines CI/CD por ambiente
-│
-├── docs/
-│   └── evidences/            # Prints, logs, outputs, evidências de execução
-│
-├── README.md
-└── LICENSE
