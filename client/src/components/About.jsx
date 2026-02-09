@@ -11,7 +11,7 @@ const About = () => {
 
             <h3>Próximo Evento</h3>
 
-            <h4>AWS & IA</h4>
+            <h4>AWS & IA 10</h4>
             <p><strong>10/02/2026</strong><br/>Formação AWS</p>
           </div>
         </div>
