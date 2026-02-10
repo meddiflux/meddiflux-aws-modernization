@@ -9,12 +9,10 @@ const About = () => {
         <div className="feature-grid">
           <div className="feature-card highlight">
 
-            <h3>Próximo Evento 20</h3>
+            <h3>Próximo Evento</h3>
 
-            
-
-            <h4>AWS & IA</h4>
-            <p><strong>31/01 e 01/02/2026</strong><br/>Formação AWS</p>
+            <h4>AWS & IA 10</h4>
+            <p><strong>10/02/2026</strong><br/>Formação AWS</p>
           </div>
         </div>
 
