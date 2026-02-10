@@ -9,7 +9,7 @@ const About = () => {
         <div className="feature-grid">
           <div className="feature-card highlight">
 
-            <h3>Apresentacao</h3>
+            <h3>Apresentacao da Meddiflux</h3>
 
             <h4>Meddiflux</h4>
             <p><strong>10/02/2026</strong><br/>Formação AWS</p>
