@@ -526,6 +526,43 @@
             </section>
 
             <section class="section">
+                <h2>Arquiteturas - Antes e Depois</h2>
+                
+                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 3rem; margin: 2rem 0; align-items: start;">
+                    <!-- Arquitetura Antiga -->
+                    <div style="text-align: center;">
+                        <h3 style="color: #dc3545; margin-bottom: 1rem;">Arquitetura Anterior</h3>
+                        <div style="height: 400px; display: flex; align-items: center; justify-content: center; background: #f8f9fa; border-radius: 10px; padding: 1rem;">
+                            <img src="./imagens-arquitetura/antiga.png" alt="Arquitetura Antiga MeddiFlux" style="max-width: 100%; max-height: 100%; object-fit: contain; border-radius: 10px; box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2);">
+                        </div>
+                    </div>
+
+                    <!-- Arquitetura Nova -->
+                    <div style="text-align: center;">
+                        <h3 style="color: #28a745; margin-bottom: 1rem;">Arquitetura Modernizada</h3>
+                        <div style="height: 400px; display: flex; align-items: center; justify-content: center; background: #f8f9fa; border-radius: 10px; padding: 1rem;">
+                            <img src="./imagens-arquitetura/arquitetura-nova.jpg" alt="Arquitetura Nova MeddiFlux" style="max-width: 100%; max-height: 100%; object-fit: contain; border-radius: 10px; box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2);">
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Responsive Design para Mobile -->
+                <style>
+                    @media (max-width: 768px) {
+                        .section div[style*="grid-template-columns: 1fr 1fr"] {
+                            display: grid !important;
+                            grid-template-columns: 1fr !important;
+                            gap: 2rem !important;
+                        }
+                        
+                        .section div[style*="height: 400px"] {
+                            height: 300px !important;
+                        }
+                    }
+                </style>
+            </section>
+
+            <section class="section">
                 <h2>Cronograma de Execução</h2>
                 <div style="background: #ffffff; padding: 3rem; border-radius: 15px; border: 2px solid #28a745; margin: 2rem 0; box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);">
                     <h3 style="color: #2c3e50; margin-bottom: 2rem; text-align: center;">Projeto Executado em 9 Semanas</h3>
